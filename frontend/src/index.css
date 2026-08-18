@@ -1,0 +1,296 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   SlotSync Global Design System
+   ============================================================ */
+
+
+/* ── CSS Custom Properties (design tokens) ─────────────────────────── */
+:root {
+  --radius: 0.625rem;
+
+  /* Background layers */
+  --bg-base:     hsl(220, 24%, 7%);
+  --bg-surface:  hsl(220, 21%, 10%);
+  --bg-elevated: hsl(220, 19%, 13%);
+  --bg-overlay:  hsl(220, 17%, 17%);
+
+  /* Brand / accent */
+  --brand:       hsl(230, 85%, 60%);
+  --brand-hover: hsl(233, 80%, 52%);
+  --accent:      hsl(270, 85%, 60%);
+
+  /* Text */
+  --text-primary:   hsl(220, 16%, 96%);
+  --text-secondary: hsl(220, 9%, 65%);
+  --text-muted:     hsl(220, 9%, 46%);
+
+  /* Borders */
+  --border: hsl(220, 15%, 20%);
+  --border-subtle: hsl(220, 13%, 16%);
+
+  /* Glass effect */
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 16px;
+
+  /* Status colors */
+  --success: hsl(142, 71%, 45%);
+  --warning: hsl(38, 92%, 50%);
+  --danger:  hsl(0, 84%, 60%);
+  --info:    hsl(210, 100%, 56%);
+}
+
+/* ── Base Reset ────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(220, 15%, 30%);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(220, 15%, 40%);
+}
+
+/* ── Selection ─────────────────────────────────────────────────────── */
+::selection {
+  background: hsl(230, 85%, 60%, 0.3);
+  color: var(--text-primary);
+}
+
+/* ── Focus Visible ─────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* ============================================================
+   Component Layer — Reusable Classes
+   ============================================================ */
+@layer components {
+
+  /* ── Glass Card ──────────────────────────────────────────────────── */
+  .glass-card {
+    @apply rounded-2xl border;
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300;
+    &:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  /* ── Surface Cards ───────────────────────────────────────────────── */
+  .card {
+    @apply rounded-xl border;
+    background: var(--bg-surface);
+    border-color: var(--border);
+  }
+
+  .card-elevated {
+    @apply rounded-xl border;
+    background: var(--bg-elevated);
+    border-color: var(--border);
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
+           font-semibold text-sm text-white transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
+           focus-visible:ring-offset-dark-500;
+    background: linear-gradient(135deg, hsl(230, 85%, 60%), hsl(270, 85%, 60%));
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, hsl(233, 80%, 52%), hsl(271, 80%, 52%));
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+      transform: translateY(-1px);
+    }
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
+           font-semibold text-sm transition-all duration-200
+           border disabled:opacity-50 disabled:cursor-not-allowed;
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    color: var(--text-primary);
+    backdrop-filter: blur(8px);
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           font-medium text-sm transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    color: var(--text-secondary);
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+    }
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
+           font-semibold text-sm text-white transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background: linear-gradient(135deg, hsl(0, 84%, 60%), hsl(0, 72%, 51%));
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+      transform: translateY(-1px);
+    }
+  }
+
+  /* ── Form Inputs ─────────────────────────────────────────────────── */
+  .input {
+    @apply w-full px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+           placeholder:font-normal focus:outline-none;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    &::placeholder {
+      color: var(--text-muted);
+    }
+    &:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+  }
+
+  /* ── Badges ──────────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-success {
+    @apply badge;
+    background: rgba(34, 197, 94, 0.15);
+    color: hsl(142, 71%, 55%);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+  .badge-warning {
+    @apply badge;
+    background: rgba(234, 179, 8, 0.15);
+    color: hsl(48, 96%, 60%);
+    border: 1px solid rgba(234, 179, 8, 0.2);
+  }
+  .badge-danger {
+    @apply badge;
+    background: rgba(239, 68, 68, 0.15);
+    color: hsl(0, 84%, 65%);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  .badge-info {
+    @apply badge;
+    background: rgba(99, 102, 241, 0.15);
+    color: hsl(230, 85%, 70%);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  /* ── Skeleton Loader ─────────────────────────────────────────────── */
+  .skeleton {
+    @apply rounded-lg;
+    background: linear-gradient(
+      90deg,
+      hsl(220, 19%, 15%) 25%,
+      hsl(220, 19%, 20%) 50%,
+      hsl(220, 19%, 15%) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* ── Gradient Text ───────────────────────────────────────────────── */
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(230, 85%, 70%), hsl(270, 85%, 70%));
+  }
+
+  /* ── Glow Effects ────────────────────────────────────────────────── */
+  .glow-brand {
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.25);
+  }
+  .glow-brand-lg {
+    box-shadow: 0 0 60px rgba(99, 102, 241, 0.35);
+  }
+
+  /* ── Sidebar Link ────────────────────────────────────────────────── */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200;
+    color: var(--text-secondary);
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+    }
+    &.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: hsl(230, 85%, 70%);
+      border-left: 2px solid hsl(230, 85%, 60%);
+    }
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────────── */
+  .divider {
+    @apply w-full h-px;
+    background: var(--border);
+  }
+}
+
+/* ── Utility overrides ─────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}

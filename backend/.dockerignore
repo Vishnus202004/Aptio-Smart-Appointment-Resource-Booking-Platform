@@ -1,0 +1,17 @@
+.mvn/
+!.mvn/wrapper/
+target/
+!target/*.jar
+
+*.class
+*.log
+*.tmp
+
+.env
+.DS_Store
+*.iml
+.idea/
+*.orig
+
+# Keep mvnw inside image build context
+!mvnw

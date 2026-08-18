@@ -1,0 +1,282 @@
+# ============================================================
+#  SlotSync Backend — Application Configuration
+#  Profiles: dev (default), test, prod
+#  Design decision: Spring profiles provide environment-specific
+#  settings while sharing common configuration in this base file.
+# ============================================================
+
+# --------------- Application Info ---------------
+spring:
+  application:
+    name: slotsync-backend
+
+# --------------- Default datasource (H2 in-memory for local dev without Docker) ---------------
+  datasource:
+    url: jdbc:h2:mem:slotsync;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# --------------- Common JPA Settings ---------------
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: false
+    open-in-view: false
+
+# --------------- Flyway (disabled for default H2 profile; enabled per-profile for MySQL) ---------------
+  flyway:
+    enabled: false
+
+# --------------- Jackson ---------------
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+
+# --------------- Async & Scheduling ---------------
+  task:
+    execution:
+      pool:
+        core-size: 4
+        max-size: 16
+        queue-capacity: 100
+        keep-alive: 60s
+      thread-name-prefix: slotsync-async-
+    scheduling:
+      pool:
+        size: 4
+      thread-name-prefix: slotsync-sched-
+
+# --------------- Actuator ---------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# --------------- OpenAPI / Swagger ---------------
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true
+  info:
+    title: SlotSync API
+    description: |
+      Smart Appointment & Resource Booking Platform.
+      All endpoints are versioned under /api/v1.
+    version: 1.0.0
+    contact:
+      name: SlotSync Engineering Team
+      email: dev@slotsync.io
+
+# --------------- Logging ---------------
+logging:
+  level:
+    root: INFO
+    com.slotsync: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# --------------- SlotSync Custom Properties ---------------
+slotsync:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-production-use-256-bit-key-here-for-security}
+    access-token-expiry-ms: 900000       # 15 minutes
+    refresh-token-expiry-ms: 604800000   # 7 days
+
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+  booking:
+    # Max time (seconds) a slot is held during concurrent booking attempt
+    lock-timeout-seconds: 10
+
+  notifications:
+    email:
+      enabled: ${EMAIL_ENABLED:false}   # Graceful fallback if SMTP not configured
+
+---
+# ============================================================
+#  DEV Profile — MySQL in Docker, verbose logging
+# ============================================================
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:slotsync_dev}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: ${DB_USERNAME:slotsync}
+    password: ${DB_PASSWORD:slotsync_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: SlotSync-HikariPool-Dev
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        generate_statistics: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
+
+logging:
+  level:
+    com.slotsync: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework.web: DEBUG
+
+---
+# ============================================================
+#  TEST Profile — H2 in-memory, no Flyway, relaxed security
+# ============================================================
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:slotsync_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: false
+
+  flyway:
+    enabled: false
+
+  mail:
+    host: localhost
+    port: 25
+
+slotsync:
+  jwt:
+    secret: test-secret-key-that-is-at-least-32-characters-long-for-hmac-sha256
+    access-token-expiry-ms: 60000
+    refresh-token-expiry-ms: 120000
+  notifications:
+    email:
+      enabled: false
+
+logging:
+  level:
+    com.slotsync: DEBUG
+    org.hibernate.SQL: DEBUG
+
+---
+# ============================================================
+#  PROD Profile — Secure defaults, env-var driven config
+# ============================================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT:3306}/${DB_NAME}?useSSL=true&serverTimezone=UTC&requireSSL=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: SlotSync-HikariPool-Prod
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: false
+
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+logging:
+  level:
+    root: WARN
+    com.slotsync: INFO
+    org.hibernate.SQL: WARN
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+slotsync:
+  cors:
+    allowed-origins: ${CORS_ORIGINS}
+  notifications:
+    email:
+      enabled: ${EMAIL_ENABLED:true}
