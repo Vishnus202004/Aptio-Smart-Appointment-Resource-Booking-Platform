@@ -1,4 +1,4 @@
-##Aptio - Smart Appointment — System Architecture
+#Aptio - Smart Appointment — System Architecture
 
 ## Overview
 
