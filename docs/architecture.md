@@ -1,4 +1,4 @@
-# SlotSync — System Architecture
+Aptio - Smart Appointment — System Architecture
 
 ## Overview
 
@@ -70,15 +70,15 @@ graph TB
 ```
 com.slotsync.backend/
 │
-├── config/                     # All Spring @Configuration classes
-│   ├── AppConfig.java          # Custom property beans (JwtProperties, etc.)
-│   ├── AsyncConfig.java        # Thread pool for @Async
-│   ├── CorsConfig.java         # CORS configuration
-│   ├── OpenApiConfig.java      # Swagger / OpenAPI 3
-│   ├── SecurityConfig.java     # Spring Security filter chain
-│   └── WebSocketConfig.java    # STOMP endpoint registration
+├── config/                     
+│   ├── AppConfig.java          
+│   ├── AsyncConfig.java     
+│   ├── CorsConfig.java        
+│   ├── OpenApiConfig.java     
+│   ├── SecurityConfig.java     
+│   └── WebSocketConfig.java   
 │
-├── controller/                 # REST API controllers (thin — delegate to services)
+├── controller/                 
 │   ├── AuthController.java
 │   ├── BookingController.java
 │   ├── ProviderController.java
@@ -87,7 +87,7 @@ com.slotsync.backend/
 │   ├── NotificationController.java
 │   └── AdminController.java
 │
-├── service/                    # Business logic interfaces
+├── service/                   
 │   ├── AuthService.java
 │   ├── BookingService.java
 │   ├── ProviderService.java
@@ -97,7 +97,7 @@ com.slotsync.backend/
 │   ├── EmailService.java
 │   └── AdminService.java
 │
-├── service/impl/               # Concrete service implementations
+├── service/impl/             
 │   ├── AuthServiceImpl.java
 │   ├── BookingServiceImpl.java  ← Core: @Transactional + pessimistic lock
 │   ├── ProviderServiceImpl.java
@@ -128,32 +128,32 @@ com.slotsync.backend/
 │   └── AuditLog.java
 │
 ├── dto/
-│   ├── request/                # Incoming request DTOs (validated with @Valid)
+│   ├── request/              
 │   │   ├── RegisterRequest.java
 │   │   ├── LoginRequest.java
 │   │   ├── CreateSlotRequest.java
 │   │   ├── BookingRequest.java
 │   │   └── ...
-│   └── response/               # Outgoing response DTOs
+│   └── response/              
 │       ├── AuthResponse.java
 │       ├── SlotResponse.java
 │       ├── BookingResponse.java
 │       ├── PagedResponse.java   ← Generic paginated wrapper
 │       └── ...
 │
-├── mapper/                     # MapStruct interfaces (auto-generated impls)
+├── mapper/                    
 │   ├── UserMapper.java
 │   ├── ProviderMapper.java
 │   ├── SlotMapper.java
 │   ├── BookingMapper.java
 │   └── NotificationMapper.java
 │
-├── event/                      # Spring domain events
+├── event/                     
 │   ├── BookingConfirmedEvent.java
 │   ├── BookingCancelledEvent.java
 │   └── WaitlistPromotedEvent.java
 │
-├── exception/                  # Custom exceptions + global handler
+├── exception/                 
 │   ├── GlobalExceptionHandler.java   ← @RestControllerAdvice
 │   ├── ResourceNotFoundException.java
 │   ├── SlotNotAvailableException.java ← Maps to 409 Conflict
@@ -161,23 +161,23 @@ com.slotsync.backend/
 │   ├── UnauthorizedException.java
 │   └── ValidationException.java
 │
-├── security/                   # JWT security components
+├── security/                  
 │   ├── JwtTokenProvider.java
 │   ├── JwtAuthenticationFilter.java
 │   └── UserDetailsServiceImpl.java
 │
-├── scheduler/                  # Recurring tasks
+├── scheduler/                
 │   ├── RecurringSlotGeneratorJob.java
 │   └── WaitlistCleanupJob.java
 │
-├── websocket/                  # WebSocket broadcasting
+├── websocket/                
 │   └── SlotBroadcastService.java
 │
-├── specification/              # JPA Specifications for dynamic queries
+├── specification/             
 │   ├── ProviderSpecification.java
 │   └── BookingSpecification.java
 │
-└── validation/                 # Custom Bean Validation annotations
+└── validation/                
     ├── FutureOrPresent.java
     └── ValidTimeRange.java
 ```
